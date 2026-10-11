@@ -25,6 +25,12 @@
       position: relative;
     }
 
+    .ar-help {
+      margin: 12px 16px;
+      font-family: Arial, sans-serif;
+      line-height: 1.5;
+    }
+
     #ar-button {
       display: block !important;
       width: 120px;
@@ -50,12 +56,19 @@
     shadow-intensity="2"
     touch-action="pan-y"
     ar
-    ar-modes="webxr scene-viewer quick-look"
+    ar-modes="scene-viewer quick-look webxr"
     ar-placement="floor"
+    ar-scale="auto"
     auto-rotate
   >
-    <button id="ar-button" slot="ar-button">Iniciar AR</button>
+    <button id="ar-button" slot="ar-button">Ver en mi espacio</button>
   </model-viewer>
+
+  <p class="ar-help">
+    En AR, toca el suelo para colocar el modelo. Arrástralo para moverlo por el
+    suelo (también adelante y atrás), pellizca para cambiar su tamaño y camina
+    alrededor para verlo desde distintos ángulos.
+  </p>
 
 </body>
 </html>
