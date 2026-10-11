@@ -5,10 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
 
-  <script
-    type="module"
-    src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"
-  ></script>
+  <script>
+    const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (!navigator.xr && isIOS) {
+      window.location.replace('./ios-ar.html');
+    }
+  </script>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.168.0/examples/jsm/"
+      }
+    }
+  </script>
 
   <title>Modelo 3D - Van</title>
 
@@ -18,57 +30,162 @@
       padding: 0;
     }
 
-    model-viewer {
-      width: 100vw;
-      height: 90vh;
-      background-color: #f0f0f0;
+    .viewer-container {
       position: relative;
     }
 
-    .ar-help {
+    #preview-canvas {
+      width: 100vw;
+      height: 90vh;
+      display: block;
+      touch-action: none;
+    }
+
+    body.ar-active #preview-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      z-index: 20;
+    }
+
+    #ar-button {
+      display: block !important;
+      min-width: 170px;
+      min-height: 56px;
+      position: absolute;
+      right: 20px;
+      bottom: 20px;
+      background-color: rgb(64, 203, 203);
+      color: white;
+      border: none;
+      font-size: 17px;
+      border-radius: 8px;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    .ar-help,
+    #ar-status {
       margin: 12px 16px;
       font-family: Arial, sans-serif;
       line-height: 1.5;
     }
 
-    #ar-button {
-      display: block !important;
-      width: 120px;
-      height: 60px;
-      position: absolute;
-      right: 35px;
-      bottom: 35px;
-      background-color: rgb(64, 203, 203);
+    #ar-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 21;
+      display: none;
+      pointer-events: none;
+      font-family: Arial, sans-serif;
+    }
+
+    #ar-overlay.active {
+      display: block;
+    }
+
+    #ar-overlay button {
+      min-width: 48px;
+      min-height: 48px;
+      border: 0;
+      border-radius: 10px;
+      padding: 8px 12px;
+      background: rgba(20, 30, 35, 0.88);
       color: white;
-      border: none;
-      font-size: 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      z-index: 10;
+      font-size: 16px;
+      pointer-events: auto;
+      touch-action: manipulation;
+    }
+
+    #ar-overlay button:disabled {
+      opacity: 0.45;
+    }
+
+    #ar-instructions {
+      position: absolute;
+      top: max(16px, env(safe-area-inset-top));
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: min(90vw, 520px);
+      margin: 0;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: rgba(20, 30, 35, 0.8);
+      color: white;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    #ar-controls {
+      position: absolute;
+      right: max(16px, env(safe-area-inset-right));
+      bottom: max(16px, env(safe-area-inset-bottom));
+      display: grid;
+      grid-template-columns: repeat(3, auto);
+      gap: 8px;
+    }
+
+    #ar-controls button {
+      min-width: 56px;
+    }
+
+    #exit-ar {
+      position: absolute;
+      top: max(16px, env(safe-area-inset-top));
+      right: max(16px, env(safe-area-inset-right));
+    }
+
+    @media (max-width: 500px) {
+      #ar-instructions {
+        top: 72px;
+      }
+
+      #ar-controls {
+        right: 10px;
+        bottom: 10px;
+        gap: 6px;
+      }
+
+      #ar-controls button {
+        min-width: 48px;
+        min-height: 44px;
+        padding: 6px;
+        font-size: 14px;
+      }
     }
   </style>
 </head>
 <body>
 
-  <model-viewer
-    src="models/Van_v02.glb"
-    camera-controls
-    shadow-intensity="2"
-    touch-action="pan-y"
-    ar
-    ar-modes="scene-viewer quick-look webxr"
-    ar-placement="floor"
-    ar-scale="auto"
-    auto-rotate
-  >
-    <button id="ar-button" slot="ar-button">Ver en mi espacio</button>
-  </model-viewer>
+  <div class="viewer-container">
+    <canvas id="preview-canvas" aria-label="Vista previa 3D del modelo"></canvas>
+    <button id="ar-button" type="button">Ver en mi espacio</button>
+  </div>
 
   <p class="ar-help">
-    En AR, toca el suelo para colocar el modelo. Arrástralo para moverlo por el
-    suelo (también adelante y atrás), pellizca para cambiar su tamaño y camina
-    alrededor para verlo desde distintos ángulos.
+    En AR, apunta al suelo y pulsa el gatillo para colocar la van. Usa los
+    controles en pantalla o los sticks del mando para moverla adelante/atrás y
+    subirla/bajarla; usa los botones de escala y camina alrededor para verla.
   </p>
+  <p id="ar-status" role="status" aria-live="polite"></p>
 
+  <div id="ar-overlay">
+    <p id="ar-instructions">Apunta al suelo y pulsa el gatillo para colocar la van.</p>
+    <button id="exit-ar" type="button">Salir</button>
+    <div id="ar-controls" aria-label="Controles del modelo">
+      <button type="button" data-action="forward" aria-label="Acercar">▲</button>
+      <button type="button" data-action="up" aria-label="Subir">Subir</button>
+      <button type="button" data-action="back" aria-label="Alejar">▼</button>
+      <button type="button" data-action="left" aria-label="Mover a la izquierda">◀</button>
+      <button type="button" data-action="down" aria-label="Bajar">Bajar</button>
+      <button type="button" data-action="right" aria-label="Mover a la derecha">▶</button>
+      <button type="button" data-action="scale-down" aria-label="Reducir">− Tamaño</button>
+      <button type="button" data-action="scale-up" aria-label="Aumentar">+ Tamaño</button>
+    </div>
+  </div>
+
+  <script type="module" src="ar.js"></script>
 </body>
 </html>

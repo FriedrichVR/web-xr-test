@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modelo 3D - Van</title>
+
+  <script
+    type="module"
+    src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"
+  ></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      line-height: 1.5;
+    }
+
+    model-viewer {
+      width: 100vw;
+      height: 90vh;
+      background-color: #f0f0f0;
+    }
+
+    #ar-button {
+      position: absolute;
+      right: 20px;
+      bottom: 20px;
+      min-width: 170px;
+      min-height: 56px;
+      border: 0;
+      border-radius: 8px;
+      background: rgb(64, 203, 203);
+      color: white;
+      font-size: 17px;
+    }
+
+    p {
+      margin: 12px 16px;
+    }
+  </style>
+</head>
+<body>
+  <model-viewer
+    src="models/Van_v02.glb"
+    camera-controls
+    shadow-intensity="2"
+    ar
+    ar-modes="quick-look"
+    ar-placement="floor"
+    ar-scale="auto"
+  >
+    <button id="ar-button" slot="ar-button">Ver en mi espacio</button>
+  </model-viewer>
+  <p>En iPhone, toca el botón y coloca la van sobre una superficie plana.</p>
+</body>
+</html>
