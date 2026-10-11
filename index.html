@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+  <script
+    type="module"
+    src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.4.0/model-viewer.min.js"
+  ></script>
+
+  <title>Modelo 3D - Van</title>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    model-viewer {
+      width: 100vw;
+      height: 90vh;
+      background-color: #f0f0f0;
+      position: relative;
+    }
+
+    #ar-button {
+      display: block !important;
+      width: 120px;
+      height: 60px;
+      position: absolute;
+      right: 35px;
+      bottom: 35px;
+      background-color: rgb(64, 203, 203);
+      color: white;
+      border: none;
+      font-size: 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+
+  <model-viewer
+    src="models1/Van_v02.glb"
+    camera-controls
+    shadow-intensity="2"
+    touch-action="pan-y"
+    ar
+    auto-rotate
+  >
+    <button id="ar-button" slot="ar-button">Start AR</button>
+  </model-viewer>
+
+</body>
+</html>
